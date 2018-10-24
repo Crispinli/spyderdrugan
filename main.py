@@ -18,7 +18,7 @@ from model import discriminator
 # 限定GPU显存的使用比例
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
-config.gpu_options.per_process_gpu_memory_fraction = 0.4
+# config.gpu_options.per_process_gpu_memory_fraction = 0.4
 
 to_train = True  # 是否训练
 to_test = True  # 是否测试
