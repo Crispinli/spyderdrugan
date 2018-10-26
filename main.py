@@ -12,7 +12,7 @@ import numpy as np
 from PIL import Image
 import tensorflow as tf
 from model import generator
-from scipy.misc import imsave
+from imageio import imwrite
 from model import discriminator
 
 # 限定GPU显存的使用比例
@@ -68,13 +68,13 @@ class Img2ImgGAN():
             self.fake_A = generator(self.input_B, name="g_B")
             self.rec_A = discriminator(self.input_A, "d_A")
             self.rec_B = discriminator(self.input_B, "d_B")
-            
+
         with tf.variable_scope("img2img", reuse=True): # 变量复用
             self.fake_rec_A = discriminator(self.fake_A, "d_A")
             self.fake_rec_B = discriminator(self.fake_B, "d_B")
             self.cyc_A = generator(self.fake_B, "g_B")
             self.cyc_B = generator(self.fake_A, "g_A")
-            
+
         with tf.variable_scope("img2img", reuse=True): # 变量复用
             self.fake_pool_rec_A = discriminator(self.fake_pool_A, "d_A")
             self.fake_pool_rec_B = discriminator(self.fake_pool_B, "d_B")
@@ -188,12 +188,12 @@ class Img2ImgGAN():
                 [self.fake_A, self.fake_B, self.cyc_A, self.cyc_B],
                 feed_dict={self.input_A: img_A, self.input_B: img_B}
             )
-            imsave("./output/imgs/fakeA_" + str(epoch) + "_" + str(i) + ".jpg", ((fake_A_temp[0] + 1) * 127.5).astype(np.uint8))
-            imsave("./output/imgs/fakeB_" + str(epoch) + "_" + str(i) + ".jpg", ((fake_B_temp[0] + 1) * 127.5).astype(np.uint8))
-            imsave("./output/imgs/cycA_" + str(epoch) + "_" + str(i) + ".jpg", ((cyc_A_temp[0] + 1) * 127.5).astype(np.uint8))
-            imsave("./output/imgs/cycB_" + str(epoch) + "_" + str(i) + ".jpg", ((cyc_B_temp[0] + 1) * 127.5).astype(np.uint8))
-            imsave("./output/imgs/inputA_" + str(epoch) + "_" + str(i) + ".jpg", ((img_A[0] + 1) * 127.5).astype(np.uint8))
-            imsave("./output/imgs/inputB_" + str(epoch) + "_" + str(i) + ".jpg", ((img_B[0] + 1) * 127.5).astype(np.uint8))
+            imwrite("./output/imgs/fakeA_" + str(epoch) + "_" + str(i) + ".jpg", ((fake_A_temp[0] + 1) * 127.5).astype(np.uint8))
+            imwrite("./output/imgs/fakeB_" + str(epoch) + "_" + str(i) + ".jpg", ((fake_B_temp[0] + 1) * 127.5).astype(np.uint8))
+            imwrite("./output/imgs/cycA_" + str(epoch) + "_" + str(i) + ".jpg", ((cyc_A_temp[0] + 1) * 127.5).astype(np.uint8))
+            imwrite("./output/imgs/cycB_" + str(epoch) + "_" + str(i) + ".jpg", ((cyc_B_temp[0] + 1) * 127.5).astype(np.uint8))
+            imwrite("./output/imgs/inputA_" + str(epoch) + "_" + str(i) + ".jpg", ((img_A[0] + 1) * 127.5).astype(np.uint8))
+            imwrite("./output/imgs/inputB_" + str(epoch) + "_" + str(i) + ".jpg", ((img_B[0] + 1) * 127.5).astype(np.uint8))
 
     def fake_image_pool(self, num_fakes, fake, fake_pool):
         '''
@@ -347,10 +347,10 @@ class Img2ImgGAN():
                         self.input_A: img_A,
                         self.input_B: img_B}
                 )
-                imsave("./output/test/fakeA_" + str(i) + ".jpg", ((fake_A_temp[0] + 1) * 127.5).astype(np.uint8))
-                imsave("./output/test/fakeB_" + str(i) + ".jpg", ((fake_B_temp[0] + 1) * 127.5).astype(np.uint8))
-                imsave("./output/test/inputA_" + str(i) + ".jpg", ((img_A[0] + 1) * 127.5).astype(np.uint8))
-                imsave("./output/test/inputB_" + str(i) + ".jpg", ((img_B[0] + 1) * 127.5).astype(np.uint8))
+                imwrite("./output/test/fakeA_" + str(i) + ".jpg", ((fake_A_temp[0] + 1) * 127.5).astype(np.uint8))
+                imwrite("./output/test/fakeB_" + str(i) + ".jpg", ((fake_B_temp[0] + 1) * 127.5).astype(np.uint8))
+                imwrite("./output/test/inputA_" + str(i) + ".jpg", ((img_A[0] + 1) * 127.5).astype(np.uint8))
+                imwrite("./output/test/inputB_" + str(i) + ".jpg", ((img_B[0] + 1) * 127.5).astype(np.uint8))
 
 
 def main():
