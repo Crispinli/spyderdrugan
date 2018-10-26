@@ -27,11 +27,9 @@ def discriminator(inputdisc, name="discriminator"):
     :return: tensor
     '''
     with tf.variable_scope(name):
-#        f = 3
-#        patch_input = tf.random_crop(inputdisc, [1, 70, 70, 3])
-#        o_c1 = conv2d(patch_input, ndf, f, f, 2, 2, "SAME", "c1", do_norm=False, relufactor=0.2)
         f = 4
-        o_c1 = conv2d(inputdisc, ndf, f, f, 2, 2, "SAME", "c1", do_norm=False, relufactor=0.2)
+        patch_input = tf.random_crop(inputdisc, [1, 70, 70, 3])
+        o_c1 = conv2d(patch_input, ndf, f, f, 2, 2, "SAME", "c1", do_norm=False, relufactor=0.2)
         o_c2 = conv2d(o_c1, ndf * 2, f, f, 2, 2, "SAME", "c2", relufactor=0.2)
         o_c3 = conv2d(o_c2, ndf * 4, f, f, 2, 2, "SAME", "c3", relufactor=0.2)
         o_c4 = conv2d(o_c3, ndf * 8, f, f, 1, 1, "SAME", "c4", relufactor=0.2)
@@ -68,7 +66,8 @@ def generator(inputgen, name="generator"):
 
         H, W = inputgen.get_shape().as_list()[1:3]  # 图像的高和宽
         scale = 2  # 图像下采样尺度
-        num_blocks = 2  # 图像块个数
+        # num_blocks = 2  # 图像块个数
+        num_blocks = 3  # 图像块个数
         imgs = [inputgen]  # 存储不同尺寸的图像块
         conv_blocks = []  # 用于存储图像块的卷积结果
 
@@ -82,15 +81,18 @@ def generator(inputgen, name="generator"):
             conv_block = residual(conv_block, ngf * pow(2, i), "r" + str(i + 1) + "_2")
             conv_blocks.append(conv_block)
 
-        deconv = deconv2d(conv_blocks[2], conv_blocks[1].get_shape()[-1], ks, ks, 2, 2, "SAME", "dc3")
+        deconv = deconv2d(conv_blocks[3], conv_blocks[2].get_shape()[-1], ks, ks, 2, 2, "SAME", "dc3")
+        tensor = tf.concat(values=[deconv, conv_blocks[2]], axis=3)
+
+        deconv = deconv2d(tensor, conv_blocks[1].get_shape()[-1], ks, ks, 2, 2, "SAME", "dc4")
         tensor = tf.concat(values=[deconv, conv_blocks[1]], axis=3)
 
-        deconv = deconv2d(tensor, conv_blocks[0].get_shape()[-1], ks, ks, 2, 2, "SAME", "dc4")
+        deconv = deconv2d(tensor, conv_blocks[0].get_shape()[-1], ks, ks, 2, 2, "SAME", "dc5")
         tensor = tf.concat(values=[deconv, conv_blocks[0]], axis=3)
 
-        img_256_3 = conv2d(tensor, img_layer, ks, ks, 1, 1, "SAME", "dc5")
+        img_256_3 = conv2d(tensor, img_layer, ks, ks, 1, 1, "SAME", "dc6")
         tensor_256_6 = tf.concat(values=[img_256_3, inputgen], axis=3)
-        img = conv2d(tensor_256_6, img_layer, ks, ks, 1, 1, "SAME", "dc6", do_relu=False)
+        img = conv2d(tensor_256_6, img_layer, ks, ks, 1, 1, "SAME", "dc7", do_relu=False)
 
         outputgen = tanh(img)
 
