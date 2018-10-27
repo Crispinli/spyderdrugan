@@ -66,8 +66,7 @@ def generator(inputgen, name="generator"):
 
         H, W = inputgen.get_shape().as_list()[1:3]  # 图像的高和宽
         scale = 2  # 图像下采样尺度
-        # num_blocks = 2  # 图像块个数
-        num_blocks = 3  # 图像块个数
+        num_blocks = 2  # 图像块个数
         imgs = [inputgen]  # 存储不同尺寸的图像块
         conv_blocks = []  # 用于存储图像块的卷积结果
 
@@ -81,10 +80,7 @@ def generator(inputgen, name="generator"):
             conv_block = residual(conv_block, ngf * pow(2, i), "r" + str(i + 1) + "_2")
             conv_blocks.append(conv_block)
 
-        deconv = deconv2d(conv_blocks[3], conv_blocks[2].get_shape()[-1], ks, ks, 2, 2, "SAME", "dc3")
-        tensor = tf.concat(values=[deconv, conv_blocks[2]], axis=3)
-
-        deconv = deconv2d(tensor, conv_blocks[1].get_shape()[-1], ks, ks, 2, 2, "SAME", "dc4")
+        deconv = deconv2d(conv_blocks[2], conv_blocks[1].get_shape()[-1], ks, ks, 2, 2, "SAME", "dc4")
         tensor = tf.concat(values=[deconv, conv_blocks[1]], axis=3)
 
         deconv = deconv2d(tensor, conv_blocks[0].get_shape()[-1], ks, ks, 2, 2, "SAME", "dc5")
