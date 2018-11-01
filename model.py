@@ -75,9 +75,11 @@ def generator(inputgen, name="generator"):
             imgs.append(img_block)
 
         for i in range(len(imgs)):
-            conv_block = conv2d(imgs[i], ngf * pow(2, i), f, f, 1, 1, "SAME", "c" + str(i + 1), do_norm=False)
-            conv_block = residual(conv_block, ngf * pow(2, i), "r" + str(i + 1) + "_1")
-            conv_block = residual(conv_block, ngf * pow(2, i), "r" + str(i + 1) + "_2")
+            conv_block = conv2d(imgs[i], ngf * pow(2, i), f, f, 1, 1, "SAME", "c" + str(i + 1) + "_1", do_norm=False)
+            conv_block = conv2d(conv_block, ngf * pow(2, i), ks, ks, 1, 1, "SAME", "c" + str(i + 1) + "_2")
+            conv_block = conv2d(conv_block, ngf * pow(2, i), ks, ks, 1, 1, "SAME", "c" + str(i + 1) + "_3")
+            conv_block = conv2d(conv_block, ngf * pow(2, i), ks, ks, 1, 1, "SAME", "c" + str(i + 1) + "_4")
+            conv_block = conv2d(conv_block, ngf * pow(2, i), ks, ks, 1, 1, "SAME", "c" + str(i + 1) + "_5")
             conv_blocks.append(conv_block)
 
         deconv = deconv2d(conv_blocks[2], conv_blocks[1].get_shape()[-1], ks, ks, 2, 2, "SAME", "dc4")
