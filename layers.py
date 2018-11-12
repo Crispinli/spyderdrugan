@@ -36,7 +36,7 @@ def group_norm(x, G=64, eps=1e-5):
         x = tf.reshape(x, [N, H, W, G, C // G])
         mean, var = tf.nn.moments(x, [1, 2, 4], keep_dims=True)
         x = (x - mean) / tf.sqrt(var + eps)
-        gamma = tf.get_variable('gamma', [1, 1, 1, C], initializer=tf.truncated_group_normal_initializer(mean=1.0, stddev=0.02))
+        gamma = tf.get_variable('gamma', [1, 1, 1, C], initializer=tf.truncated_normal_initializer(mean=1.0, stddev=0.02))
         beta = tf.get_variable('beta', [1, 1, 1, C], initializer=tf.constant_initializer(0.0))
         x = tf.reshape(x, [N, H, W, C]) * gamma + beta
         return x
@@ -46,12 +46,12 @@ def instance_norm(x):
     '''
     Instance Normalization
     :param x: input tensor
-    :return: group_normalized tensor
+    :return: instance_normalized tensor
     '''
     with tf.variable_scope("instance_norm"):
         epsilon = 1e-5
         mean, var = tf.nn.moments(x, [1, 2], keep_dims=True)
-        scale = tf.get_variable('scale', [x.get_shape()[-1]], initializer=tf.truncated_group_normal_initializer(mean=1.0, stddev=0.02))
+        scale = tf.get_variable('scale', [x.get_shape()[-1]], initializer=tf.truncated_normal_initializer(mean=1.0, stddev=0.02))
         offset = tf.get_variable('offset', [x.get_shape()[-1]], initializer=tf.constant_initializer(0.0))
         out = scale * tf.div(x - mean, tf.sqrt(var + epsilon)) + offset
         return out
@@ -65,7 +65,7 @@ def conv2d(inputconv,
            s_w=1,
            padding="VALID",
            name="conv2d",
-           do_group_norm=True,
+           do_norm=True,
            do_relu=True,
            relufactor=0
            ):
@@ -79,7 +79,7 @@ def conv2d(inputconv,
     :param s_w: width of strides
     :param padding: method of padding
     :param name: operation name
-    :param do_group_norm: whether group_normalize
+    :param do_norm: whether group_normalize
     :param do_relu: whether ReLU
     :param relufactor: factor of lrelu
     :return: tensor
@@ -95,7 +95,7 @@ def conv2d(inputconv,
             weights_initializer=tf.contrib.layers.xavier_initializer(),
             biases_initializer=tf.constant_initializer(0.0)
         )
-        if do_group_norm: conv = group_norm(conv)
+        if do_norm: conv = group_norm(conv)
         if do_relu: conv = relu(conv) if relufactor == 0 else lrelu(conv, relufactor)
         return conv
 
@@ -108,7 +108,7 @@ def deconv2d(inputconv,
              s_w=1,
              padding="VALID",
              name="deconv2d",
-             do_group_norm=True,
+             do_norm=True,
              do_relu=True,
              relufactor=0
              ):
@@ -122,7 +122,7 @@ def deconv2d(inputconv,
     :param s_w: width of strides
     :param padding: method of padding
     :param name: operation name
-    :param do_group_norm: whether group_normalize
+    :param do_norm: whether group_normalize
     :param do_relu: whether ReLU
     :param relufactor: factor of lrelu
     :return: tensor
@@ -138,6 +138,6 @@ def deconv2d(inputconv,
             weights_initializer=tf.contrib.layers.xavier_initializer(),
             biases_initializer=tf.constant_initializer(0.0)
         )
-        if do_group_norm: conv = group_norm(conv)
+        if do_norm: conv = group_norm(conv)
         if do_relu: conv = relu(conv) if relufactor == 0 else lrelu(conv, relufactor)
         return conv
