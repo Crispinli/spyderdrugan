@@ -7,6 +7,7 @@ Created on Sat Oct 20 11:41:50 2018
 
 import os
 import sys
+import time
 import random
 import numpy as np
 from PIL import Image
@@ -28,7 +29,7 @@ ckpt_dir = "./output/checkpoint"  # 检查点路径
 
 max_images = 1000  # 数组中最多存储的训练/测试数据（batch_size, img_height, img_width, img_layer）数目
 pool_size = 50  # 用于更新D的假图像的批次数
-max_epoch = 100  # 每次训练的epoch数目
+max_epoch = 1  # 每次训练的epoch数目
 n_critic = 5  # 判别器训练的次数
 
 img_height = 256  # 图像高度
@@ -325,11 +326,13 @@ class Img2ImgGAN():
         with tf.Session(config=config) as sess:
             sess.run(init)
             chkpt_fname = tf.train.latest_checkpoint(ckpt_dir)
-            print("Restore the model...")
-            saver.restore(sess, chkpt_fname)
+            if chkpt_fname is not None:
+	            print("Restore the model...")
+	            saver.restore(sess, chkpt_fname)
             if not os.path.exists("./output/test/"):
                 os.makedirs("./output/test/")
             print("Testing loop...")
+            print(time.time())
             for i in range(0, min(len(A_input), len(B_input))):
                 print("In the iteration ", i)
                 path_A = os.path.join(test_root_A, A_input[i])
@@ -351,14 +354,16 @@ class Img2ImgGAN():
                 imwrite("./output/test/fakeB_" + str(i) + ".jpg", ((fake_B_temp[0] + 1) * 127.5).astype(np.uint8))
                 imwrite("./output/test/inputA_" + str(i) + ".jpg", ((img_A[0] + 1) * 127.5).astype(np.uint8))
                 imwrite("./output/test/inputB_" + str(i) + ".jpg", ((img_B[0] + 1) * 127.5).astype(np.uint8))
+            print(time.time())
 
 
 def main():
     model = Img2ImgGAN()
     if to_train:
         model.train()
-#    if to_test:
-#       model.test()
+    tf.reset_default_graph()
+    if to_test:
+        model.test()
 
 
 if __name__ == '__main__':
