@@ -28,9 +28,9 @@ def group_norm(x, G=64, eps=1e-5):
     :param x: input tensor
     :param G: the number of group
     :param eps: a small float number to avoid dividing by 0
-    :return: group_normalized tensor
+    :return: instance_normalized tensor
     '''
-    with tf.variable_scope("GroupNorm"):
+    with tf.variable_scope("group_norm"):
         N, H, W, C = x.get_shape().as_list()
         G = min(G, C)
         x = tf.reshape(x, [N, H, W, G, C // G])
@@ -79,7 +79,7 @@ def conv2d(inputconv,
     :param s_w: width of strides
     :param padding: method of padding
     :param name: operation name
-    :param do_norm: whether group_normalize
+    :param do_norm: whether instance_normalize
     :param do_relu: whether ReLU
     :param relufactor: factor of lrelu
     :return: tensor
@@ -95,7 +95,7 @@ def conv2d(inputconv,
             weights_initializer=tf.contrib.layers.xavier_initializer(),
             biases_initializer=tf.constant_initializer(0.0)
         )
-        if do_norm: conv = group_norm(conv)
+        if do_norm: conv = instance_norm(conv)
         if do_relu: conv = relu(conv) if relufactor == 0 else lrelu(conv, relufactor)
         return conv
 
@@ -122,7 +122,7 @@ def deconv2d(inputconv,
     :param s_w: width of strides
     :param padding: method of padding
     :param name: operation name
-    :param do_norm: whether group_normalize
+    :param do_norm: whether instance_normalize
     :param do_relu: whether ReLU
     :param relufactor: factor of lrelu
     :return: tensor
@@ -138,6 +138,6 @@ def deconv2d(inputconv,
             weights_initializer=tf.contrib.layers.xavier_initializer(),
             biases_initializer=tf.constant_initializer(0.0)
         )
-        if do_norm: conv = group_norm(conv)
+        if do_norm: conv = instance_norm(conv)
         if do_relu: conv = relu(conv) if relufactor == 0 else lrelu(conv, relufactor)
         return conv
