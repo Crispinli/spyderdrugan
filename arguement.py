@@ -5,7 +5,6 @@ Created on Sat Oct 20 11:46:50 2018
 @author: liweipeng
 """
 
-
 from PIL import Image
 import os
 

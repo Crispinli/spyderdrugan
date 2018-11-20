@@ -5,7 +5,6 @@ Created on Sat Oct 20 11:45:50 2018
 @author: liweipeng
 """
 
-
 import tensorflow as tf
 
 relu = tf.nn.relu
@@ -36,7 +35,8 @@ def group_norm(x, G=64, eps=1e-5):
         x = tf.reshape(x, [N, H, W, G, C // G])
         mean, var = tf.nn.moments(x, [1, 2, 4], keep_dims=True)
         x = (x - mean) / tf.sqrt(var + eps)
-        gamma = tf.get_variable('gamma', [1, 1, 1, C], initializer=tf.truncated_normal_initializer(mean=1.0, stddev=0.02))
+        gamma = tf.get_variable('gamma', [1, 1, 1, C],
+                                initializer=tf.truncated_normal_initializer(mean=1.0, stddev=0.02))
         beta = tf.get_variable('beta', [1, 1, 1, C], initializer=tf.constant_initializer(0.0))
         x = tf.reshape(x, [N, H, W, C]) * gamma + beta
         return x
@@ -51,7 +51,8 @@ def instance_norm(x):
     with tf.variable_scope("instance_norm"):
         epsilon = 1e-5
         mean, var = tf.nn.moments(x, [1, 2], keep_dims=True)
-        scale = tf.get_variable('scale', [x.get_shape()[-1]], initializer=tf.truncated_normal_initializer(mean=1.0, stddev=0.02))
+        scale = tf.get_variable('scale', [x.get_shape()[-1]],
+                                initializer=tf.truncated_normal_initializer(mean=1.0, stddev=0.02))
         offset = tf.get_variable('offset', [x.get_shape()[-1]], initializer=tf.constant_initializer(0.0))
         out = scale * tf.div(x - mean, tf.sqrt(var + epsilon)) + offset
         return out

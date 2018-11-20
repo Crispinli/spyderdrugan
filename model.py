@@ -5,7 +5,6 @@ Created on Sat Oct 20 11:44:50 2018
 @author: liweipeng
 """
 
-
 import tensorflow as tf
 from layers import conv2d
 from layers import deconv2d

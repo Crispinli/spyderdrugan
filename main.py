@@ -64,19 +64,19 @@ class Img2ImgGAN():
 
         self.lr = tf.placeholder(tf.float32, shape=[], name="lr")
 
-        with tf.variable_scope("img2img", reuse=False): # 构建网络并初始化变量
+        with tf.variable_scope("img2img", reuse=False):  # 构建网络并初始化变量
             self.fake_B = generator(self.input_A, name="g_A")
             self.fake_A = generator(self.input_B, name="g_B")
             self.rec_A = discriminator(self.input_A, "d_A")
             self.rec_B = discriminator(self.input_B, "d_B")
 
-        with tf.variable_scope("img2img", reuse=True): # 变量复用
+        with tf.variable_scope("img2img", reuse=True):  # 变量复用
             self.fake_rec_A = discriminator(self.fake_A, "d_A")
             self.fake_rec_B = discriminator(self.fake_B, "d_B")
             self.cyc_A = generator(self.fake_B, "g_B")
             self.cyc_B = generator(self.fake_A, "g_A")
 
-        with tf.variable_scope("img2img", reuse=True): # 变量复用
+        with tf.variable_scope("img2img", reuse=True):  # 变量复用
             self.fake_pool_rec_A = discriminator(self.fake_pool_A, "d_A")
             self.fake_pool_rec_B = discriminator(self.fake_pool_B, "d_B")
 
@@ -103,7 +103,7 @@ class Img2ImgGAN():
         disc_loss_B = tf.reduce_mean(self.fake_pool_rec_B) - tf.reduce_mean(self.rec_B)
         alpha_B = tf.random_uniform(shape=[batch_size, 1, 1, 1], minval=0.0, maxval=1.0)
         interpolates_B = self.input_B + alpha_B * (self.fake_B - self.input_B)
-        with tf.variable_scope("img2img", reuse=True): # 变量复用
+        with tf.variable_scope("img2img", reuse=True):  # 变量复用
             gradients_B = tf.gradients(discriminator(interpolates_B, name="d_B"), [interpolates_B])[0]
         slopes_B = tf.sqrt(tf.reduce_sum(tf.square(gradients_B), reduction_indices=[1]))
         gradients_penalty_B = tf.reduce_mean((slopes_B - 1.0) ** 2)
@@ -115,7 +115,7 @@ class Img2ImgGAN():
         disc_loss_A = tf.reduce_mean(self.fake_pool_rec_A) - tf.reduce_mean(self.rec_A)
         alpha_A = tf.random_uniform(shape=[batch_size, 1, 1, 1], minval=0.0, maxval=1.0)
         interpolates_A = self.input_A + alpha_A * (self.fake_A - self.input_A)
-        with tf.variable_scope("img2img", reuse=True): #变量复用
+        with tf.variable_scope("img2img", reuse=True):  # 变量复用
             gradients_A = tf.gradients(discriminator(interpolates_A, name="d_A"), [interpolates_A])[0]
         slopes_A = tf.sqrt(tf.reduce_sum(tf.square(gradients_A), reduction_indices=[1]))
         gradients_penalty_A = tf.reduce_mean((slopes_A - 1.0) ** 2)
@@ -189,12 +189,18 @@ class Img2ImgGAN():
                 [self.fake_A, self.fake_B, self.cyc_A, self.cyc_B],
                 feed_dict={self.input_A: img_A, self.input_B: img_B}
             )
-            imwrite("./output/imgs/fakeA_" + str(epoch) + "_" + str(i) + ".jpg", ((fake_A_temp[0] + 1) * 127.5).astype(np.uint8))
-            imwrite("./output/imgs/fakeB_" + str(epoch) + "_" + str(i) + ".jpg", ((fake_B_temp[0] + 1) * 127.5).astype(np.uint8))
-            imwrite("./output/imgs/cycA_" + str(epoch) + "_" + str(i) + ".jpg", ((cyc_A_temp[0] + 1) * 127.5).astype(np.uint8))
-            imwrite("./output/imgs/cycB_" + str(epoch) + "_" + str(i) + ".jpg", ((cyc_B_temp[0] + 1) * 127.5).astype(np.uint8))
-            imwrite("./output/imgs/inputA_" + str(epoch) + "_" + str(i) + ".jpg", ((img_A[0] + 1) * 127.5).astype(np.uint8))
-            imwrite("./output/imgs/inputB_" + str(epoch) + "_" + str(i) + ".jpg", ((img_B[0] + 1) * 127.5).astype(np.uint8))
+            imwrite("./output/imgs/fakeA_" + str(epoch) + "_" + str(i) + ".jpg",
+                    ((fake_A_temp[0] + 1) * 127.5).astype(np.uint8))
+            imwrite("./output/imgs/fakeB_" + str(epoch) + "_" + str(i) + ".jpg",
+                    ((fake_B_temp[0] + 1) * 127.5).astype(np.uint8))
+            imwrite("./output/imgs/cycA_" + str(epoch) + "_" + str(i) + ".jpg",
+                    ((cyc_A_temp[0] + 1) * 127.5).astype(np.uint8))
+            imwrite("./output/imgs/cycB_" + str(epoch) + "_" + str(i) + ".jpg",
+                    ((cyc_B_temp[0] + 1) * 127.5).astype(np.uint8))
+            imwrite("./output/imgs/inputA_" + str(epoch) + "_" + str(i) + ".jpg",
+                    ((img_A[0] + 1) * 127.5).astype(np.uint8))
+            imwrite("./output/imgs/inputB_" + str(epoch) + "_" + str(i) + ".jpg",
+                    ((img_B[0] + 1) * 127.5).astype(np.uint8))
 
     def fake_image_pool(self, num_fakes, fake, fake_pool):
         '''
@@ -327,8 +333,8 @@ class Img2ImgGAN():
             sess.run(init)
             chkpt_fname = tf.train.latest_checkpoint(ckpt_dir)
             if chkpt_fname is not None:
-	            print("Restore the model...")
-	            saver.restore(sess, chkpt_fname)
+                print("Restore the model...")
+                saver.restore(sess, chkpt_fname)
             if not os.path.exists("./output/test/"):
                 os.makedirs("./output/test/")
             print("Testing loop...")
