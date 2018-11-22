@@ -93,7 +93,7 @@ def conv2d(inputconv,
             [s_w, s_h],
             padding,
             activation_fn=None,
-            weights_initializer=tf.contrib.layers.xavier_initializer(),
+            weights_initializer=tf.glorot_normal_initializer(),
             biases_initializer=tf.constant_initializer(0.0)
         )
         if do_norm: conv = instance_norm(conv)
@@ -136,7 +136,7 @@ def deconv2d(inputconv,
             [s_h, s_w],
             padding,
             activation_fn=None,
-            weights_initializer=tf.contrib.layers.xavier_initializer(),
+            weights_initializer=tf.glorot_normal_initializer(),
             biases_initializer=tf.constant_initializer(0.0)
         )
         if do_norm: conv = instance_norm(conv)
