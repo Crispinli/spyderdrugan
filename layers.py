@@ -7,18 +7,29 @@ Created on Sat Oct 20 11:45:50 2018
 
 import tensorflow as tf
 
-relu = tf.nn.relu
+elu = tf.nn.elu  # elu activation
+relu = tf.nn.relu  # relu activation
+sigmoid = tf.nn.sigmoid  # sigmoid activation
+
+
+def swish(x, beta=1):
+    '''
+    swish activation
+    :param x: input tensor
+    :param beta: factor
+    :return: tensor
+    '''
+    return x * sigmoid(beta * x)
 
 
 def lrelu(x, leak=0.2):
     '''
-    lrelu
+    lrelu activation
     :param x: input tensor
     :param leak: factor
     :return: tensor
     '''
-    x = tf.identity(x)
-    return (0.5 * (1 + leak)) * x + (0.5 * (1 - leak)) * tf.abs(x)
+    return tf.maximum(x, leak * x)
 
 
 def group_norm(x, G=64, eps=1e-5):
@@ -97,7 +108,9 @@ def conv2d(inputconv,
             biases_initializer=tf.constant_initializer(0.0)
         )
         if do_norm: conv = instance_norm(conv)
-        if do_relu: conv = relu(conv) if relufactor == 0 else lrelu(conv, relufactor)
+        # if do_relu: conv = relu(conv) if relufactor == 0 else lrelu(conv, relufactor)
+        # if do_relu: conv = elu(conv)
+        if do_relu: conv = swish(conv)
         return conv
 
 
@@ -140,5 +153,7 @@ def deconv2d(inputconv,
             biases_initializer=tf.constant_initializer(0.0)
         )
         if do_norm: conv = instance_norm(conv)
-        if do_relu: conv = relu(conv) if relufactor == 0 else lrelu(conv, relufactor)
+        # if do_relu: conv = relu(conv) if relufactor == 0 else lrelu(conv, relufactor)
+        # if do_relu: conv = elu(conv)
+        if do_relu: conv = swish(conv)
         return conv
